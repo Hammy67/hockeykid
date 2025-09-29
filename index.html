@@ -1,15 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NCAA College Hockey Hub</title>
+  <title>College Hockey Hub</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: #003366; /* Blue background */
-      color: #ffffff;
+      color: white;
     }
     header {
       display: flex;
@@ -24,9 +25,7 @@
       border-radius: 5px;
     }
     main { padding: 20px; }
-    section {
-      margin-bottom: 30px;
-    }
+    section { margin-bottom: 30px; }
     h2 {
       margin-bottom: 10px;
       border-bottom: 2px solid #ffffff55;
@@ -43,9 +42,7 @@
       padding: 15px;
       background: #001f44;
     }
-    footer a {
-      color: #66ccff;
-    }
+    footer a { color: #66ccff; }
   </style>
 </head>
 <body>
@@ -76,7 +73,7 @@
   </footer>
 
   <script>
-    // === NCAA College Hockey Teams (D1) ===
+    // === NCAA D1 Men's Hockey Teams ===
     const teams = [
       "Air Force","Alaska Anchorage","Alaska Fairbanks","American International",
       "Arizona State","Army West Point","Bemidji State","Boston College",
@@ -91,7 +88,7 @@
       "Stonehill","Union","Vermont","Western Michigan","Wisconsin","Yale"
     ];
 
-    // === Demo Scores/Schedules (replace with API later) ===
+    // === Demo Data (replace with real API later) ===
     const games = [
       { date: "2025-10-05", home: "Michigan", away: "Wisconsin", homeScore: 4, awayScore: 2, status: "Final" },
       { date: "2025-10-06", home: "Minnesota", away: "North Dakota", homeScore: 3, awayScore: 3, status: "OT" },
@@ -99,7 +96,6 @@
       { date: "2025-10-14", home: "Denver", away: "Colorado College", status: "Scheduled" },
     ];
 
-    // Populate dropdown with teams
     function populateTeams() {
       const sel = document.getElementById("teamDropdown");
       teams.forEach(t => {
@@ -110,7 +106,6 @@
       });
     }
 
-    // Render scores/schedule
     function render() {
       const teamFilter = document.getElementById("teamDropdown").value;
       const scoresContainer = document.getElementById("scores-container");
@@ -143,7 +138,6 @@
       });
     }
 
-    // Event + Init
     document.getElementById("teamDropdown").addEventListener("change", render);
     window.addEventListener("load", () => {
       populateTeams();
