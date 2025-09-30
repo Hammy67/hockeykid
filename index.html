@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,6 +42,18 @@
       background: #001f44;
     }
     footer a { color: #66ccff; }
+
+    /* Game styling */
+    #gameCanvas {
+      background: #0b3d91;
+      display: block;
+      margin: 0 auto;
+      border: 4px solid white;
+    }
+    #game-controls {
+      text-align: center;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -58,22 +69,34 @@
 
   <main>
     <section>
-      <h2>Latest Scores</h2>
+      <h2>2024–25 Scores</h2>
       <div id="scores-container">Loading scores...</div>
     </section>
 
     <section>
-      <h2>Upcoming Schedule</h2>
+      <h2>2025–26 Upcoming Schedule</h2>
       <div id="schedule-container">Loading schedule...</div>
+    </section>
+
+    <section>
+      <h2>1-on-1 Hockey Game: Michigan vs Denver</h2>
+      <canvas id="gameCanvas" width="600" height="400"></canvas>
+      <div id="game-controls">
+        <p>
+          <strong>Controls:</strong><br>
+          Michigan (Red): W / A / S / D<br>
+          Denver (Yellow): Arrow Keys
+        </p>
+      </div>
     </section>
   </main>
 
   <footer>
-    <p>Visit the official <a href="https://www.ncaa.com/sports/icehockey-men/d1" target="_blank">NCAA Hockey Website</a></p>
+    <p>Visit the NCAA site: <a href="https://www.ncaa.com/sports/icehockey-men/d1" target="_blank">NCAA Men’s Hockey</a></p>
   </footer>
 
   <script>
-    // === NCAA D1 Men's Hockey Teams ===
+    // === All NCAA D1 Men’s Hockey Teams ===
     const teams = [
       "Air Force","Alaska Anchorage","Alaska Fairbanks","American International",
       "Arizona State","Army West Point","Bemidji State","Boston College",
@@ -88,13 +111,22 @@
       "Stonehill","Union","Vermont","Western Michigan","Wisconsin","Yale"
     ];
 
-    // === Demo Data (replace with real API later) ===
-    const games = [
-      { date: "2025-10-05", home: "Michigan", away: "Wisconsin", homeScore: 4, awayScore: 2, status: "Final" },
-      { date: "2025-10-06", home: "Minnesota", away: "North Dakota", homeScore: 3, awayScore: 3, status: "OT" },
-      { date: "2025-10-12", home: "Boston College", away: "Boston University", status: "Scheduled" },
-      { date: "2025-10-14", home: "Denver", away: "Colorado College", status: "Scheduled" },
-    ];
+    // === Placeholder fetch functions (replace with real NCAA API) ===
+    async function fetchScores() {
+      // Replace with actual API
+      return [
+        { date: "2025-03-29", home: "Michigan", away: "Denver", homeScore: 3, awayScore: 2, status: "Final" },
+        { date: "2025-03-28", home: "Boston College", away: "Minnesota", homeScore: 4, awayScore: 1, status: "Final" }
+      ];
+    }
+
+    async function fetchSchedule() {
+      // Replace with actual API
+      return [
+        { date: "2025-10-03", home: "Michigan", away: "Wisconsin" },
+        { date: "2025-10-04", home: "Denver", away: "North Dakota" }
+      ];
+    }
 
     function populateTeams() {
       const sel = document.getElementById("teamDropdown");
@@ -106,43 +138,111 @@
       });
     }
 
-    function render() {
+    async function render() {
       const teamFilter = document.getElementById("teamDropdown").value;
-      const scoresContainer = document.getElementById("scores-container");
-      const scheduleContainer = document.getElementById("schedule-container");
+      const scores = await fetchScores();
+      const schedule = await fetchSchedule();
 
-      scoresContainer.innerHTML = "";
-      scheduleContainer.innerHTML = "";
+      const scC = document.getElementById("scores-container");
+      const schC = document.getElementById("schedule-container");
+      scC.innerHTML = "";
+      schC.innerHTML = "";
 
-      const filtered = games.filter(g =>
+      // Scores
+      const filteredScores = scores.filter(g =>
         teamFilter === "all" || g.home === teamFilter || g.away === teamFilter
       );
+      if (filteredScores.length === 0) {
+        scC.textContent = "No scores available.";
+      } else {
+        filteredScores.forEach(g => {
+          const d = document.createElement("div");
+          d.className = "card";
+          d.textContent = `${g.away} ${g.awayScore} @ ${g.home} ${g.homeScore} — ${g.status} (${g.date})`;
+          scC.appendChild(d);
+        });
+      }
 
-      const past = filtered.filter(g => g.status !== "Scheduled");
-      const upcoming = filtered.filter(g => g.status === "Scheduled");
-
-      if (past.length === 0) scoresContainer.textContent = "No recent scores.";
-      past.forEach(g => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.textContent = `${g.away} ${g.awayScore ?? ""} @ ${g.home} ${g.homeScore ?? ""} — ${g.status}`;
-        scoresContainer.appendChild(div);
-      });
-
-      if (upcoming.length === 0) scheduleContainer.textContent = "No upcoming games.";
-      upcoming.forEach(g => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.textContent = `${g.date}: ${g.away} @ ${g.home}`;
-        scheduleContainer.appendChild(div);
-      });
+      // Schedule
+      const filteredSchedule = schedule.filter(g =>
+        teamFilter === "all" || g.home === teamFilter || g.away === teamFilter
+      );
+      if (filteredSchedule.length === 0) {
+        schC.textContent = "No upcoming games available.";
+      } else {
+        filteredSchedule.forEach(g => {
+          const d = document.createElement("div");
+          d.className = "card";
+          d.textContent = `${g.date}: ${g.away} @ ${g.home}`;
+          schC.appendChild(d);
+        });
+      }
     }
 
     document.getElementById("teamDropdown").addEventListener("change", render);
+
     window.addEventListener("load", () => {
       populateTeams();
       render();
     });
+
+    // === Mini 1-on-1 Game ===
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const player1 = { x: 120, y: 200, r: 15, color: "red", up: "w", down: "s", left: "a", right: "d" };
+    const player2 = { x: 480, y: 200, r: 15, color: "yellow", up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight" };
+    const puck = { x: 300, y: 200, dx: 2, dy: 2, r: 8 };
+
+    const keys = {};
+    window.addEventListener("keydown", e => { keys[e.key] = true; });
+    window.addEventListener("keyup", e => { keys[e.key] = false; });
+
+    function movePlayer(p) {
+      if (keys[p.up]) p.y -= 4;
+      if (keys[p.down]) p.y += 4;
+      if (keys[p.left]) p.x -= 4;
+      if (keys[p.right]) p.x += 4;
+      p.x = Math.max(p.r, Math.min(canvas.width - p.r, p.x));
+      p.y = Math.max(p.r, Math.min(canvas.height - p.r, p.y));
+    }
+
+    function movePuck() {
+      puck.x += puck.dx;
+      puck.y += puck.dy;
+      if (puck.x - puck.r < 0 || puck.x + puck.r > canvas.width) puck.dx *= -1;
+      if (puck.y - puck.r < 0 || puck.y + puck.r > canvas.height) puck.dy *= -1;
+      [player1, player2].forEach(p => {
+        const dist = Math.hypot(p.x - puck.x, p.y - puck.y);
+        if (dist < p.r + puck.r) {
+          puck.dx *= -1;
+          puck.dy *= -1;
+        }
+      });
+    }
+
+    function drawGame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      [player1, player2].forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+      ctx.fillStyle = "white";
+      ctx.beginPath();
+      ctx.arc(puck.x, puck.y, puck.r, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    function gameLoop() {
+      movePlayer(player1);
+      movePlayer(player2);
+      movePuck();
+      drawGame();
+      requestAnimationFrame(gameLoop);
+    }
+    gameLoop();
   </script>
 </body>
 </html>
