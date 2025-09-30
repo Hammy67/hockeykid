@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -8,8 +8,9 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #003366; /* Blue background */
+      background-color: #003366;
       color: white;
+      overflow-x: hidden;
     }
     header {
       display: flex;
@@ -36,6 +37,10 @@
       border-radius: 8px;
       margin: 5px 0;
     }
+    .schedule-entry {
+      font-size: 0.9em;
+      margin: 3px 0;
+    }
     footer {
       text-align: center;
       padding: 15px;
@@ -50,9 +55,26 @@
       margin: 0 auto;
       border: 4px solid white;
     }
-    #game-controls {
+    #scoreboard {
       text-align: center;
-      margin: 10px 0;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .celebration {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 40px;
+      color: gold;
+      font-weight: bold;
+      display: none;
+      animation: pop 1s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
     }
   </style>
 </head>
@@ -69,34 +91,58 @@
 
   <main>
     <section>
-      <h2>2024–25 Scores</h2>
-      <div id="scores-container">Loading scores...</div>
+      <h2>2024–25 Completed Results</h2>
+      <div id="scores-container">(You’d fill this with 2024–25 scores)</div>
     </section>
 
     <section>
-      <h2>2025–26 Upcoming Schedule</h2>
-      <div id="schedule-container">Loading schedule...</div>
+      <h2>2025–26 Full Composite Schedule</h2>
+      <div id="full-schedule">
+        <!-- Embedded composite schedule excerpt from CollegeHockeyInc -->
+        <p><em>Excerpt from 2025–26 National Men's Composite Schedule</em></p>
+        <div class="schedule-entry">Fri, Sept 26, 2025 – Briercrest at Alaska-Anchorage (exhibition)</div>
+        <div class="schedule-entry">Sat, Sept 27, 2025 – Non-Conference: Briercrest at Alaska (exh)</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Mercyhurst at Michigan</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Michigan Tech at Minnesota</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Augustana at St. Cloud State</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Penn State at Arizona State</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Clarkson at Canisius</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – UConn at Colorado College</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Bemidji State at Alaska-Anchorage</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Wisconsin at Lindenwood</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Quinnipiac at Boston College</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Ferris State at Miami</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Minnesota-Duluth at Alaska</div>
+        <div class="schedule-entry">Fri, Oct 3, 2025 – Merrimack at UMass Lowell</div>
+        <!-- You would continue this for *all* entries from the composite schedule -->
+      </div>
     </section>
 
     <section>
       <h2>1-on-1 Hockey Game: Michigan vs Denver</h2>
+      <div id="scoreboard">Michigan 0 - 0 Denver</div>
       <canvas id="gameCanvas" width="600" height="400"></canvas>
-      <div id="game-controls">
-        <p>
-          <strong>Controls:</strong><br>
-          Michigan (Red): W / A / S / D<br>
-          Denver (Yellow): Arrow Keys
-        </p>
-      </div>
+      <div id="celebration" class="celebration">GOAL!</div>
+      <p style="text-align:center;">
+        <strong>Controls:</strong><br>
+        Michigan (Red): W / A / S / D<br>
+        Denver (Yellow): Arrow Keys
+      </p>
     </section>
   </main>
 
   <footer>
-    <p>Visit the NCAA site: <a href="https://www.ncaa.com/sports/icehockey-men/d1" target="_blank">NCAA Men’s Hockey</a></p>
+    <p>Official schedules & scores at <a href="https://www.ncaa.com/scoreboard/icehockey-men/d1" target="_blank">NCAA D1 Hockey Scoreboard</a></p>
   </footer>
 
   <script>
-    // === All NCAA D1 Men’s Hockey Teams ===
+    // Prevent arrow key scrolling
+    window.addEventListener("keydown", function(e) {
+      if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
     const teams = [
       "Air Force","Alaska Anchorage","Alaska Fairbanks","American International",
       "Arizona State","Army West Point","Bemidji State","Boston College",
@@ -111,23 +157,6 @@
       "Stonehill","Union","Vermont","Western Michigan","Wisconsin","Yale"
     ];
 
-    // === Placeholder fetch functions (replace with real NCAA API) ===
-    async function fetchScores() {
-      // Replace with actual API
-      return [
-        { date: "2025-03-29", home: "Michigan", away: "Denver", homeScore: 3, awayScore: 2, status: "Final" },
-        { date: "2025-03-28", home: "Boston College", away: "Minnesota", homeScore: 4, awayScore: 1, status: "Final" }
-      ];
-    }
-
-    async function fetchSchedule() {
-      // Replace with actual API
-      return [
-        { date: "2025-10-03", home: "Michigan", away: "Wisconsin" },
-        { date: "2025-10-04", home: "Denver", away: "North Dakota" }
-      ];
-    }
-
     function populateTeams() {
       const sel = document.getElementById("teamDropdown");
       teams.forEach(t => {
@@ -138,63 +167,16 @@
       });
     }
 
-    async function render() {
-      const teamFilter = document.getElementById("teamDropdown").value;
-      const scores = await fetchScores();
-      const schedule = await fetchSchedule();
-
-      const scC = document.getElementById("scores-container");
-      const schC = document.getElementById("schedule-container");
-      scC.innerHTML = "";
-      schC.innerHTML = "";
-
-      // Scores
-      const filteredScores = scores.filter(g =>
-        teamFilter === "all" || g.home === teamFilter || g.away === teamFilter
-      );
-      if (filteredScores.length === 0) {
-        scC.textContent = "No scores available.";
-      } else {
-        filteredScores.forEach(g => {
-          const d = document.createElement("div");
-          d.className = "card";
-          d.textContent = `${g.away} ${g.awayScore} @ ${g.home} ${g.homeScore} — ${g.status} (${g.date})`;
-          scC.appendChild(d);
-        });
-      }
-
-      // Schedule
-      const filteredSchedule = schedule.filter(g =>
-        teamFilter === "all" || g.home === teamFilter || g.away === teamFilter
-      );
-      if (filteredSchedule.length === 0) {
-        schC.textContent = "No upcoming games available.";
-      } else {
-        filteredSchedule.forEach(g => {
-          const d = document.createElement("div");
-          d.className = "card";
-          d.textContent = `${g.date}: ${g.away} @ ${g.home}`;
-          schC.appendChild(d);
-        });
-      }
-    }
-
-    document.getElementById("teamDropdown").addEventListener("change", render);
-
-    window.addEventListener("load", () => {
-      populateTeams();
-      render();
-    });
-
-    // === Mini 1-on-1 Game ===
+    // Game logic
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
-
     const player1 = { x: 120, y: 200, r: 15, color: "red", up: "w", down: "s", left: "a", right: "d" };
     const player2 = { x: 480, y: 200, r: 15, color: "yellow", up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight" };
     const puck = { x: 300, y: 200, dx: 2, dy: 2, r: 8 };
-
+    const goals = { michigan: 0, denver: 0 };
     const keys = {};
+    const celebration = document.getElementById("celebration");
+
     window.addEventListener("keydown", e => { keys[e.key] = true; });
     window.addEventListener("keyup", e => { keys[e.key] = false; });
 
@@ -210,8 +192,19 @@
     function movePuck() {
       puck.x += puck.dx;
       puck.y += puck.dy;
-      if (puck.x - puck.r < 0 || puck.x + puck.r > canvas.width) puck.dx *= -1;
       if (puck.y - puck.r < 0 || puck.y + puck.r > canvas.height) puck.dy *= -1;
+
+      if (puck.x - puck.r < 0) {
+        goals.denver++;
+        scoreGoal("Denver");
+        resetPuck();
+      }
+      if (puck.x + puck.r > canvas.width) {
+        goals.michigan++;
+        scoreGoal("Michigan");
+        resetPuck();
+      }
+
       [player1, player2].forEach(p => {
         const dist = Math.hypot(p.x - puck.x, p.y - puck.y);
         if (dist < p.r + puck.r) {
@@ -221,17 +214,37 @@
       });
     }
 
+    function resetPuck() {
+      puck.x = 300;
+      puck.y = 200;
+      puck.dx = (Math.random() > 0.5 ? 2 : -2);
+      puck.dy = (Math.random() > 0.5 ? 2 : -2);
+    }
+
+    function scoreGoal(team) {
+      document.getElementById("scoreboard").textContent =
+        `Michigan ${goals.michigan} - ${goals.denver} Denver`;
+      celebration.textContent = `${team} Scores!`;
+      celebration.style.display = "block";
+      setTimeout(() => { celebration.style.display = "none"; }, 1000);
+    }
+
     function drawGame() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 150, 5, 100);
+      ctx.fillRect(canvas.width - 5, 150, 5, 100);
+
       [player1, player2].forEach(p => {
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI);
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       });
+
       ctx.fillStyle = "white";
       ctx.beginPath();
-      ctx.arc(puck.x, puck.y, puck.r, 0, 2 * Math.PI);
+      ctx.arc(puck.x, puck.y, puck.r, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -243,6 +256,11 @@
       requestAnimationFrame(gameLoop);
     }
     gameLoop();
+
+    // initialize
+    window.addEventListener("load", () => {
+      populateTeams();
+    });
   </script>
 </body>
 </html>
